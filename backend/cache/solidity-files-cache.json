@@ -35,6 +35,41 @@
       "artifacts": [
         "IncrementDecrement"
       ]
+    },
+    "/home/piryth/Développement/ElectionChain/backend/contracts/Whitelist.sol": {
+      "lastModificationDate": 1742285076194,
+      "contentHash": "8ebbbd4ddc4e3351af607fc4dbc21a5e",
+      "sourceName": "contracts/Whitelist.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "Whitelist"
+      ]
     }
   }
 }
