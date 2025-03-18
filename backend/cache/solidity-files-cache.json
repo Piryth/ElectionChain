@@ -1,0 +1,40 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/piryth/Développement/ElectionChain/backend/contracts/IncrementDecrement.sol": {
+      "lastModificationDate": 1742227187432,
+      "contentHash": "d93c02d7330bc331aa641c8c9f2a36c7",
+      "sourceName": "contracts/IncrementDecrement.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "IncrementDecrement"
+      ]
+    }
+  }
+}
