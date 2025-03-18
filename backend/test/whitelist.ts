@@ -1,16 +1,16 @@
 import {expect} from "chai";
 import {ethers} from "hardhat";
 import {Contract, Signer} from "ethers";
+import {deployContract} from "./utils";
 
-describe("Whitelist", function () {
+describe("Whitelist addresses", function () {
   let whitelist: Contract;
     let owner: Signer, addr1: Signer, addr2: Signer;
 
     beforeEach(async function () {
         [owner, addr1, addr2] = await ethers.getSigners();
-        const WhitelistFactory = await ethers.getContractFactory("Whitelist");
-        whitelist = (await WhitelistFactory.deploy()) as Contract;
-        await whitelist.deployed();
+
+        whitelist = await deployContract("Whitelist")
     });
 
     it("Should deploy and set the deployer as authorized", async function () {
