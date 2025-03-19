@@ -12,6 +12,6 @@ export default function Home() {
         chainId: 1,
     })
     return (
-        <p>BalanceOf on the mainnet : {data && data.toString()}</p>
+        <h1>Hello world</h1>
     );
 }
