@@ -21,11 +21,13 @@ contract Voting is Ownable {
         ProposalsRegistrationEnded,
         VotingSessionStarted,
         VotingSessionEnded,
-        VotesTallied
+        VotesTallied,
+        VotingSessionCanceled
     }
 
     WorkflowStatus public status;
     mapping(address => Voter) public voters;
+    uint public voterCount;
     Proposal[] public proposals;
     uint public winningProposalId;
 
@@ -45,6 +47,7 @@ contract Voting is Ownable {
         require(status == WorkflowStatus.RegisteringVoters, "Not allowed at this stage");
         require(!voters[_voter].isRegistered, "Already registered");
         voters[_voter].isRegistered = true;
+        voterCount++;
         emit VoterRegistered(_voter);
     }
 
@@ -108,4 +111,35 @@ contract Voting is Ownable {
         require(status == WorkflowStatus.VotesTallied, "Votes not tallied yet");
         return (proposals[winningProposalId].description, proposals[winningProposalId].voteCount);
     }
+
+    //fonctionnalité 1
+    function cancelVotes() external onlyOwner{
+        require(status == WorkflowStatus.VotingSessionEnded, "Invalid status transition");
+        uint votes=0;
+        if (votes * 100 / voterCount < 34) {
+            status = WorkflowStatus.VotingSessionCanceled;
+            emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, status);
+        }
+    }
+
+    //fonctionnalité 2
+    function killElected() external onlyOwner {
+        require(status == WorkflowStatus.VotesTallied, "Votes not tallied yet");
+        require(proposals.length > 1, "Not enough proposals to remove the winner");
+
+        // Trouver le deuxième plus grand vote
+        uint secondMaxVotes = 0;
+        uint secondWinnerId = 0;
+
+        for (uint i = 0; i < proposals.length; i++) {
+            if (i == winningProposalId) continue; // Ignorer le gagnant actuel
+
+            if (proposals[i].voteCount > secondMaxVotes) {
+                secondMaxVotes = proposals[i].voteCount;
+                secondWinnerId = i;
+            }
+        }
+        winningProposalId=secondWinnerId;
+    }
+
 }
