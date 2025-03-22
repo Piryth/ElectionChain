@@ -11,7 +11,7 @@ export const useOpenVotes = () => {
 
 
     return useMutation({
-        mutationKey: ["registerProposal", address], // Query key for caching
+        mutationKey: ["startProposalsRegistration", address], // Query key for caching
         mutationFn: async () => {
             if (!address) throw new Error("Connect your wallet first");
 
