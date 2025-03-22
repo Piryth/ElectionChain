@@ -1,6 +1,4 @@
 'use client';
-import "./styles/style.css"
-import "./styles/globals.css"
 
 import {DataTable} from "@/app/components/DataTable";
 

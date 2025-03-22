@@ -1,6 +1,5 @@
 "use client"
 import "./styles/globals.css";
-import "./styles/style.css";
 import Navbar from "@/app/components/Navbar";
 import {Toaster} from "@/app/components/ui/sonner";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
