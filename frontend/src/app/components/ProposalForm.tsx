@@ -16,6 +16,7 @@ import {z} from "zod";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/app/components/ui/form";
 import {useRegisterProposal} from "@/app/hooks/useRegisterProposal";
 import {useState} from "react";
+import {useQueryClient} from "@tanstack/react-query";
 
 const formSchema = z.object({
     proposal: z.string().min(1),
@@ -33,6 +34,7 @@ export function ProposalForm() {
 
     const {mutate, isPending, error} = useRegisterProposal();
 
+    const queryClient = useQueryClient();
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -46,6 +48,7 @@ export function ProposalForm() {
                     onSuccess: () => {
                         setOpen(false);
                         console.log("Submitted successfully!");
+                        queryClient.invalidateQueries({ queryKey: ['getProposals'] });
                         toast(
                             <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(values, null, 2)}</code>

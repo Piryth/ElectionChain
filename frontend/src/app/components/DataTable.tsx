@@ -32,7 +32,6 @@ type ProposalsResponse = {
     proposals: ProposalData[];
 };
 
-
 export const DataTable = () => {
 
     const [filter, setFilter] = useState("");
@@ -72,7 +71,6 @@ export const DataTable = () => {
         },
     ];
 
-
     const filteredData = useMemo(() => {
         return proposalList.filter((proposal) =>
             proposal.name.toLowerCase().includes(filter.toLowerCase())
@@ -88,10 +86,7 @@ export const DataTable = () => {
         getSortedRowModel: getSortedRowModel(),
     });
 
-    //  const {data, error, isFetching, refetch } = useGetProposals({walletClient})
-
-    const {data,  isLoading} = useGetProposals()
-
+    const {data, isLoading} = useGetProposals()
 
     useEffect(() => {
 
@@ -112,7 +107,6 @@ export const DataTable = () => {
 
     if (isLoading) return <div>Loading...</div>;
 
-
     const handleVote = (index: number) => {
         console.log(`Voted for proposal at index: ${index}`);
         // You can call your smart contract function here
@@ -129,10 +123,7 @@ export const DataTable = () => {
             voted: true,
         };
         setProposalList(newProposals);
-
     };
-
-
 
     return (
         <div className="p-4 space-y-4">

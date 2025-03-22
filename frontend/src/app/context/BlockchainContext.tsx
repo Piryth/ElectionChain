@@ -10,6 +10,8 @@ interface BlockchainContextType {
     hasVoted: boolean;
     votedProposalId: number | undefined;
     refreshUserData: () => void;
+    voteStatus: number
+    isAdmin: boolean
 }
 
 type Voter = {
@@ -30,6 +32,9 @@ export const BlockchainProvider: React.FC<{ children: React.ReactNode }> = ({chi
     const [isRegistered, setIsRegistered] = useState<boolean>(false);
     const [hasVoted, setHasVoted] = useState<boolean>(false);
     const [votedProposalId, setVotedProposalId] = useState<number | undefined>(undefined)
+    const [voteStatus, setVoteStatus] = useState<number>(-1)
+    const [isAdmin, setIsAdmin] = useState<boolean>(false)
+
 
     // Function to fetch user-related data
     const fetchUserData = useCallback(async () => {
@@ -38,16 +43,32 @@ export const BlockchainProvider: React.FC<{ children: React.ReactNode }> = ({chi
         try {
 
             // Fetch if user has voted
-            const voter: Voter = await readContract(config, {
+            const voter = await readContract(config, {
                 address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
                 abi: votingAbi,
                 functionName: "getVoter",
                 args: [address],
             }) as Voter;
 
+            const status = await readContract(config, {
+                address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+                abi: votingAbi,
+                functionName: "status",
+                args: [],
+            }) as number;
+
+            const isOwner = await readContract(config, {
+                address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+                abi: votingAbi,
+                functionName: "isOwner",
+                args: [address],
+            }) as boolean;
+
             setIsRegistered(voter.isRegistered);
             setHasVoted(voter.hasVoted);
             setVotedProposalId(Number(voter.votedProposalId));
+            setVoteStatus(status)
+            setIsAdmin(isOwner)
 
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -60,7 +81,7 @@ export const BlockchainProvider: React.FC<{ children: React.ReactNode }> = ({chi
     }, [fetchUserData]);
 
     return (
-        <BlockchainContext.Provider value={{address, isRegistered, votedProposalId ,hasVoted, refreshUserData: fetchUserData}}>
+        <BlockchainContext.Provider value={{address,isAdmin , isRegistered, voteStatus, votedProposalId ,hasVoted, refreshUserData: fetchUserData}}>
             {children}
         </BlockchainContext.Provider>
     );

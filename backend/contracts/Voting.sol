@@ -164,4 +164,9 @@ contract Voting is Ownable, IVoting, VotingEvents {
         return voters[_address];
     }
 
+    function isOwner(address account) public view onlyOwner returns (bool) {
+        return account == owner();
+    }
+
+
 }
