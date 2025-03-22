@@ -5,15 +5,15 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/app/components/ui/dialog"
 
-import {Input} from "@/components/ui/input"
-import {Button} from "@/components/ui/button";
+import {Input} from "@/app/components/ui/input"
+import {Button} from "@/app/components/ui/button";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
 import {toast} from "sonner";
 import {z} from "zod";
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/app/components/ui/form";
 import {useRegisterProposal} from "@/app/hooks/useRegisterProposal";
 import {useState} from "react";
 

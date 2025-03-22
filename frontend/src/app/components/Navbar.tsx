@@ -1,10 +1,6 @@
-import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
 
-} from "@/components/ui/navigation-menu"
 import {ConnectButton} from "@rainbow-me/rainbowkit";
+import {NavigationMenu, NavigationMenuItem, NavigationMenuList} from "@/app/components/ui/navigation-menu";
 
 export default function Navbar() {
 

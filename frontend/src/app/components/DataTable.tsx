@@ -7,13 +7,13 @@ import {
     getPaginationRowModel,
     getSortedRowModel
 } from "@tanstack/react-table";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
 import {ArrowUpDown} from "lucide-react";
 import {toast} from "sonner";
 import {useGetProposals} from "@/app/hooks/useGetProposals";
 import {ProposalForm} from "@/app/components/ProposalForm";
+import {Button} from "@/app/components/ui/button";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/app/components/ui/table";
+import {Input} from "@/app/components/ui/input";
 
 
 type Proposal = {
