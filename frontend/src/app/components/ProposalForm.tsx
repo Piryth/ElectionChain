@@ -31,7 +31,6 @@ export function ProposalForm() {
         resolver: zodResolver(formSchema),
     })
 
-
     const {mutate, isPending, error} = useRegisterProposal();
 
     const queryClient = useQueryClient();

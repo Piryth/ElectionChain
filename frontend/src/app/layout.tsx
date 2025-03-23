@@ -7,7 +7,7 @@ import {WagmiProvider} from "wagmi";
 import {config} from "./configuration/wagmi"
 import {BlockchainProvider} from "@/app/context/BlockchainContext";
 import '@rainbow-me/rainbowkit/styles.css';
-import {RainbowKitProvider} from "@rainbow-me/rainbowkit";
+import {ConnectButton, RainbowKitProvider} from "@rainbow-me/rainbowkit";
 
 const queryClient = new QueryClient()
 
@@ -26,6 +26,7 @@ export default function RootLayout({
               <RainbowKitProvider>
                 <BlockchainProvider>
                   <Navbar></Navbar>
+                  <hr className="w-[80vw] m-auto"/>
                   <div className={"flex h-[100vh] justify-center align-center"}>
                     {children}
                   </div>

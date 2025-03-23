@@ -8,74 +8,64 @@ import {
     getSortedRowModel
 } from "@tanstack/react-table";
 import {ArrowUpDown} from "lucide-react";
-import {toast} from "sonner";
-import {useGetProposals} from "@/app/hooks/useGetProposals";
-import {ProposalForm} from "@/app/components/ProposalForm";
+
 import {Button} from "@/app/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/app/components/ui/table";
 import {Input} from "@/app/components/ui/input";
+import {useGetVoters} from "@/app/hooks/useGetVoters";
 
 
-type Proposal = {
-    name: string,
-    description: string,
-    numberOfVotes: number,
-    voted: boolean
+type VoterData = {
+    isRegistered: boolean;
+    hasVoted: boolean;
+    votedProposalId: number;
+    voterAddress: string;
 }
 
-type ProposalData = {
-    description: string;
-    voteCount: bigint; // Using bigint because voteCount is stored as 0n (BigInt)
-};
+type VoterResponseData = {
+    voters: VoterData[];
+}
 
-type ProposalsResponse = {
-    proposals: ProposalData[];
-};
-
-export const DataTable = () => {
+export const VotersDataTable = () => {
 
     const [filter, setFilter] = useState("");
-    const [proposalList, setProposalList] = useState<Proposal[]>([]);
+    const [voterList, setVoterList] = useState<VoterData[]>([]);
 
-    const columns: ColumnDef<Proposal>[] = [
+    const columns: ColumnDef<VoterData>[] = [
         {
             accessorKey: "name",
             header: ({column}) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Name <ArrowUpDown className="ml-2 h-4 w-4"/>
+                    Address <ArrowUpDown className="ml-2 h-4 w-4"/>
                 </Button>
             ),
         },
-        {accessorKey: "description", header: "Description"},
+        {
+            accessorKey: "hasVoted",
+            header: ({column}) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    Has Voted <ArrowUpDown className="ml-2 h-4 w-4"/>
+                </Button>
+            ),
+            cell: ({row}) => <span className="font-medium">{row.getValue("hasVoted")}</span>,
+        },
         {
             accessorKey: "numberOfVotes",
             header: ({column}) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Votes <ArrowUpDown className="ml-2 h-4 w-4"/>
+                    Voted for<ArrowUpDown className="ml-2 h-4 w-4"/>
                 </Button>
             ),
             cell: ({row}) => <span className="font-medium">{row.getValue("numberOfVotes")}</span>,
         },
-        {
-            accessorKey: "vote",
-            header: "Vote",
-            cell: ({row}) => (
-                <Button disabled={proposalList[row.index].voted}
-                        variant="outline"
-                        onClick={() => handleVote(row.index)}
-                        className={proposalList[row.index].voted ? "" : "bg-blue-500 text-white hover:bg-blue-600" + " cursor-pointer"}
-                >
-                    Vote
-                </Button>
-            ),
-        },
+
     ];
 
     const filteredData = useMemo(() => {
-        return proposalList.filter((proposal) =>
-            proposal.name.toLowerCase().includes(filter.toLowerCase())
+        return voterList.filter((voter) =>
+            voter.voterAddress.toLowerCase().includes(filter.toLowerCase())
         );
-    }, [filter, proposalList]);
+    }, [filter, voterList]);
 
     // Table instance
     const table = useReactTable({
@@ -86,44 +76,20 @@ export const DataTable = () => {
         getSortedRowModel: getSortedRowModel(),
     });
 
-    const {data, isLoading} = useGetProposals()
+    const {data, isLoading} = useGetVoters();
 
     useEffect(() => {
 
         if (data) {
-            const {proposals} = data as ProposalsResponse
+            const {voters} = data as VoterResponseData
 
-            const mappedProposals: Proposal[] = proposals.map(proposal => ({
-                name: proposal.description,
-                numberOfVotes: Number(proposal.voteCount),
-                description: "Coming soon",
-                voted: false,
-            }))
-
-            console.log("Mapped proposals : ", mappedProposals)
-            setProposalList([...mappedProposals]);
+            setVoterList([...voters]);
         }
     }, [data, isLoading])
 
     if (isLoading) return <div>Loading...</div>;
 
-    const handleVote = (index: number) => {
-        console.log(`Voted for proposal at index: ${index}`);
-        // You can call your smart contract function here
-        if (proposalList[index].voted) return
 
-        toast.success(`You voted for "${proposalList[index].name}"!" 🎉`, {
-            duration: 3000, // Show for 3 seconds
-        });
-
-        const newProposals = [...proposalList];
-        newProposals[index] = {
-            ...newProposals[index],
-            numberOfVotes: newProposals[index].numberOfVotes + 1,
-            voted: true,
-        };
-        setProposalList(newProposals);
-    };
 
     return (
         <div className="p-4 space-y-4">
@@ -135,7 +101,6 @@ export const DataTable = () => {
                     onChange={(e) => setFilter(e.target.value)}
                     className="w-1/3"
                 />
-                <ProposalForm></ProposalForm>
             </div>
 
             {/* Table */}
