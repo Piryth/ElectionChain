@@ -3,28 +3,28 @@ pragma solidity ^0.8.10;
 
 import {VotingStructures} from "./VotingStructures.sol";
 
-/// @title Contrat des événements de vote
-/// @notice Contient les événements émis par le contrat de vote
+/// @title Voting Events Contract
+/// @notice Contains events emitted by the Voting contract
 contract VotingEvents is VotingStructures {
 
     // =================================== EVENTS ======================================
 
-    /// @notice Événement émis lorsqu'un électeur est enregistré
-    /// @param voterAddress Adresse de l'électeur enregistré
+    /// @notice Event emitted when a voter is registered
+    /// @param voterAddress Address of the registered voter
     event VoterRegistered(address voterAddress);
 
-    /// @notice Événement émis lors d'un changement de statut du workflow
-    /// @param previousStatus Statut précédent du workflow
-    /// @param newStatus Nouveau statut du workflow
+    /// @notice Event emitted when the workflow status changes
+    /// @param previousStatus Previous workflow status
+    /// @param newStatus New workflow status
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
 
-    /// @notice Événement émis lorsqu'une proposition est enregistrée
-    /// @param proposalId ID de la proposition enregistrée
+    /// @notice Event emitted when a proposal is registered
+    /// @param proposalId ID of the registered proposal
     event ProposalRegistered(uint proposalId);
 
-    /// @notice Événement émis lorsqu'un vote est effectué
-    /// @param voter Adresse de l'électeur ayant voté
-    /// @param proposalId ID de la proposition votée
+    /// @notice Event emitted when a vote is cast
+    /// @param voter Address of the voter who cast the vote
+    /// @param proposalId ID of the proposal voted for
     event Voted(address voter, uint proposalId);
 
 }

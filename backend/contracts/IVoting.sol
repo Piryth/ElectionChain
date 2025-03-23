@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.10;
 
-/// @title Interface du contrat de vote
-/// @notice Interface pour interagir avec le contrat Voting
+/// @title Voting Contract Interface
+/// @notice Interface for interacting with the Voting contract
 interface IVoting {
 
-    /// @notice Enregistre un électeur
-    /// @param _voter Adresse de l'électeur à enregistrer
+    /// @notice Registers a voter
+    /// @param _voter Address of the voter to register
     function registerVoter(address _voter) external;
 
-    /// @notice Enregistre une proposition
-    /// @param _description Description de la proposition
+    /// @notice Registers a proposal
+    /// @param _description Description of the proposal
     function registerProposal(string memory _description) external;
 
-    /// @notice Vote pour une proposition
-    /// @param _proposalId ID de la proposition pour laquelle voter
+    /// @notice Votes for a proposal
+    /// @param _proposalId ID of the proposal to vote for
     function vote(uint _proposalId) external;
 
-    /// @notice Comptabilise les votes
+    /// @notice Tallies the votes
     function tallyVotes() external;
 
-    /// @notice Récupère la proposition gagnante
-    /// @return description Description de la proposition gagnante
-    /// @return voteCount Nombre de votes de la proposition gagnante
+    /// @notice Retrieves the winning proposal
+    /// @return description Description of the winning proposal
+    /// @return voteCount Number of votes for the winning proposal
     function getWinner() external view returns (string memory description, uint voteCount);
 
 }
