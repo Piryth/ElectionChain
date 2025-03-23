@@ -4,7 +4,7 @@ import {useBlockchain} from "@/app/context/BlockchainContext";
 import {Input} from "@/app/components/ui/input";
 import {Label} from "@/app/components/ui/label";
 import {Badge} from "@/app/components/ui/badge";
-import {useOpenVotes} from "@/app/hooks/useOpenVotes";
+import {useStartProposalRegistration} from "@/app/hooks/useStartProposalRegistration";
 import {Button} from "@/app/components/ui/button";
 
 enum WorkflowStatus {
@@ -19,7 +19,7 @@ enum WorkflowStatus {
 
 export default function About() {
 
-    const {mutate, isPending} = useOpenVotes()
+    const {mutate, isPending} = useStartProposalRegistration()
 
     const {address, isAdmin, isRegistered, hasVoted,voteStatus} = useBlockchain();
 
@@ -27,7 +27,6 @@ export default function About() {
         mutate();
         console.log("Proposal registration opened successfully")
     }
-
     return <div className="w-[90vw] mr-auto ml-auto mt-10 grid grid-cols-2 grid-rows-1 gap-4">
         <div className="flex flex-col w-[80%] gap-12">
             <h1 className={"text-3xl font-bold"}>Profile</h1>
@@ -54,7 +53,7 @@ export default function About() {
 
             {isAdmin ? (
                 <div>Hello admin
-                    <Button disabled={isPending} onClick={handleOpenVotes}>Open votes</Button>
+                    <Button disabled={isPending} onClick={handleOpenVotes}>Open proposal registration</Button>
 
                 </div>
             ) : (<p>You have no right</p>)}

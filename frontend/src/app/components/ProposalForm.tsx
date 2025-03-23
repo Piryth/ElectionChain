@@ -15,17 +15,43 @@ import {toast} from "sonner";
 import {z} from "zod";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/app/components/ui/form";
 import {useRegisterProposal} from "@/app/hooks/useRegisterProposal";
-import {useState} from "react";
+import React, {useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
+import {useBlockchain} from "@/app/context/BlockchainContext";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/app/components/ui/tooltip";
 
 const formSchema = z.object({
     proposal: z.string().min(1),
     description: z.string().min(1)
 });
 
+enum WorkflowStatus {
+    RegisteringVoters,
+    ProposalsRegistrationStarted,
+    ProposalsRegistrationEnded,
+    VotingSessionStarted,
+    VotingSessionEnded,
+    VotesTallied,
+    VotingSessionCanceled
+}
+
+const tooltips = (status: number) => {
+    switch (status) {
+        case WorkflowStatus.RegisteringVoters:
+            return "Voting is not opened"
+        case WorkflowStatus.ProposalsRegistrationStarted:
+            return ""
+        default:
+            return "Voting session has ended"
+    }
+}
+
 
 export function ProposalForm() {
     const [open, setOpen] = useState(false)
+
+    const {voteStatus} = useBlockchain()
+
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -67,11 +93,21 @@ export function ProposalForm() {
         }
     }
 
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="outline">Submit proposal</Button>
+            <DialogTrigger>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button variant="outline" disabled={voteStatus !== WorkflowStatus.ProposalsRegistrationStarted}>Submit proposal</Button>
+                        </TooltipTrigger>
+                        <TooltipContent hidden={voteStatus === WorkflowStatus.ProposalsRegistrationStarted}>
+                            <p>
+                                {tooltips(voteStatus)}
+                            </p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

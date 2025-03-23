@@ -1,6 +1,5 @@
 'use client'
 
-
 import React, {useEffect, useMemo, useState} from "react";
 import {
     ColumnDef,
@@ -18,6 +17,9 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/a
 import {Input} from "@/app/components/ui/input";
 import {useBlockchain} from "@/app/context/BlockchainContext";
 import {toast} from "sonner";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/app/components/ui/tooltip";
+import {useVote} from "@/app/hooks/useVote";
+import {useQueryClient} from "@tanstack/react-query";
 
 
 type Proposal = {
@@ -36,9 +38,36 @@ type ProposalsResponse = {
     proposals: ProposalData[];
 };
 
+enum WorkflowStatus {
+    RegisteringVoters,
+    ProposalsRegistrationStarted,
+    ProposalsRegistrationEnded,
+    VotingSessionStarted,
+    VotingSessionEnded,
+    VotesTallied,
+    VotingSessionCanceled
+}
+
+const tooltips = (status: number) => {
+    switch (status) {
+        case WorkflowStatus.RegisteringVoters:
+            return "Voting is not opened"
+        case WorkflowStatus.VotingSessionStarted:
+            return ""
+        default:
+            return "Voting session has ended"
+    }
+}
+
+const isUnableToVote = (status: WorkflowStatus, isRegistered: boolean, hasVoted: boolean): boolean => {
+    return !(status === WorkflowStatus.ProposalsRegistrationStarted && isRegistered && !hasVoted);
+}
+
 export const ProposalsDataTable = () => {
 
-    const {voteStatus} = useBlockchain()
+    const {voteStatus, isRegistered, hasVoted} = useBlockchain()
+    const {mutate} = useVote();
+    const queryClient = useQueryClient();
 
     const [filter, setFilter] = useState("");
     const [proposalList, setProposalList] = useState<Proposal[]>([]);
@@ -66,13 +95,24 @@ export const ProposalsDataTable = () => {
             accessorKey: "vote",
             header: "Vote",
             cell: ({row}) => (
-                <Button disabled={proposalList[row.index].voted}
-                        variant="outline"
-                        onClick={() => handleVote(row.index)}
-                        className={proposalList[row.index].voted ? "" : "bg-blue-500 text-white hover:bg-blue-600" + " cursor-pointer"}
-                >
-                    Vote
-                </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button disabled={isUnableToVote(voteStatus, isRegistered, hasVoted)}
+                                    variant="outline"
+                                    onClick={() => handleVote(row.index)}
+                                    className={isUnableToVote(voteStatus, isRegistered, hasVoted)? "" : "bg-blue-500 text-white hover:bg-blue-600" + " cursor-pointer"}
+                            >
+                                Vote
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent hidden={!isUnableToVote(voteStatus, isRegistered, hasVoted)}>
+                            <p>
+                                {tooltips(voteStatus)}
+                            </p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             ),
         },
     ];
@@ -113,21 +153,24 @@ export const ProposalsDataTable = () => {
     if (isLoading) return <div>Loading...</div>;
 
     const handleVote = (index: number) => {
-        console.log(`Voted for proposal at index: ${index}`);
-        // You can call your smart contract function here
-        if (proposalList[index].voted) return
 
-        toast.success(`You voted for "${proposalList[index].name}"!" 🎉`, {
-            duration: 3000, // Show for 3 seconds
-        });
+        mutate(
+            {proposalId: index},
+            {
+                onSuccess: () => {
+                    console.log("Submitted successfully!");
+                    queryClient.invalidateQueries({ queryKey: ['vote'] });
+                    toast.success(`You voted for "${proposalList[index].name}"!" 🎉`, {
+                        duration: 3000, // Show for 3 seconds
+                    });
+                },
+                onError: (error) => {
+                    console.error("Error submitting proposal:", error);
+                    toast.error("Failed to submit the form. Please try again.");
+                },
+            }
+        );
 
-        const newProposals = [...proposalList];
-        newProposals[index] = {
-            ...newProposals[index],
-            numberOfVotes: newProposals[index].numberOfVotes + 1,
-            voted: true,
-        };
-        setProposalList(newProposals);
     };
 
     return (

@@ -4,11 +4,10 @@ import {writeContract} from "@wagmi/core";
 import {votingAbi} from "@/app/contracts/Voting";
 
 
-export const useOpenVotes = () => {
+export const useStartProposalRegistration = () => {
     const { address } = useAccount(); // Get connected user
     const config = useConfig(); // Wagmi config
     const walletClient = useWalletClient();
-
 
     return useMutation({
         mutationKey: ["startProposalsRegistration", address], // Query key for caching

@@ -89,6 +89,8 @@ export const VotersDataTable = () => {
         }
     }, [data, isLoading])
 
+
+
     if (isLoading) return <div>Loading...</div>;
 
 
