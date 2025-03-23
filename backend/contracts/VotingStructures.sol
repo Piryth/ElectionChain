@@ -10,6 +10,7 @@ contract VotingStructures {
         bool isRegistered;
         bool hasVoted;
         int votedProposalId;
+        address voterAddress;
     }
 
     struct Proposal {

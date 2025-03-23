@@ -1,4 +1,4 @@
-export const votingAbi = [
+export const votingAbi =  [
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -132,6 +132,41 @@ export const votingAbi = [
     },
     {
         "inputs": [],
+        "name": "getAllVoterAddresses",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bool",
+                        "name": "isRegistered",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "hasVoted",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "votedProposalId",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "voterAddress",
+                        "type": "address"
+                    }
+                ],
+                "internalType": "struct VotingStructures.Voter[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "getProposals",
         "outputs": [
             {
@@ -188,6 +223,11 @@ export const votingAbi = [
                         "internalType": "int256",
                         "name": "votedProposalId",
                         "type": "int256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "voterAddress",
+                        "type": "address"
                     }
                 ],
                 "internalType": "struct VotingStructures.Voter",
@@ -349,6 +389,25 @@ export const votingAbi = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "voterAddresses",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "voterCount",
         "outputs": [
@@ -385,6 +444,11 @@ export const votingAbi = [
                 "internalType": "int256",
                 "name": "votedProposalId",
                 "type": "int256"
+            },
+            {
+                "internalType": "address",
+                "name": "voterAddress",
+                "type": "address"
             }
         ],
         "stateMutability": "view",

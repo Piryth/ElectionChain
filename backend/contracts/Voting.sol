@@ -17,6 +17,7 @@ contract Voting is Ownable, IVoting, VotingEvents {
 
     WorkflowStatus public status;
     mapping(address => Voter) public voters;
+    address[] public voterAddresses;
     uint public voterCount;
     Proposals private proposalsVar;
     uint public winningProposalId;
@@ -28,14 +29,16 @@ contract Voting is Ownable, IVoting, VotingEvents {
         console.log("Registering address %s to vote", msg.sender);
 
         // Default voter value
-        voters[msg.sender] = Voter(true, false, -1);
+        voters[msg.sender] = Voter(true, false, - 1, msg.sender);
 
         status = WorkflowStatus.RegisteringVoters;
 
         // Default proposal for testing purpose
         proposalsVar.proposals.push(Proposal("First proposal", 0));
-    }
 
+        // We also add the owner address to the addresses list
+        voterAddresses.push(msg.sender);
+    }
 
     // =================================== MODIFIERS ======================================
 
@@ -46,15 +49,18 @@ contract Voting is Ownable, IVoting, VotingEvents {
 
     // =================================== METHODS ======================================
 
-
     function registerVoter(address _voter) external onlyOwner {
         require(status == WorkflowStatus.RegisteringVoters, "Not allowed at this stage");
         require(!voters[_voter].isRegistered, "Already registered");
         voters[_voter].isRegistered = true;
+        voters[_voter].voterAddress = _voter;
 
         // We set at -1 by default
-        voters[_voter].votedProposalId = -1;
+        voters[_voter].votedProposalId = - 1;
         voterCount++;
+
+        voterAddresses.push(_voter);
+
         emit VoterRegistered(_voter);
     }
 
@@ -123,9 +129,9 @@ contract Voting is Ownable, IVoting, VotingEvents {
     }
 
     //fonctionnalité 1
-    function cancelVotes() external onlyOwner{
+    function cancelVotes() external onlyOwner {
         require(status == WorkflowStatus.VotingSessionEnded, "Invalid status transition");
-        uint votes=0;
+        uint votes = 0;
         if (votes * 100 / voterCount < 34) {
             status = WorkflowStatus.VotingSessionCanceled;
             emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, status);
@@ -149,7 +155,7 @@ contract Voting is Ownable, IVoting, VotingEvents {
                 secondWinnerId = i;
             }
         }
-        winningProposalId=secondWinnerId;
+        winningProposalId = secondWinnerId;
     }
 
     /// @notice Returns the total number of proposals in the contract
@@ -168,5 +174,19 @@ contract Voting is Ownable, IVoting, VotingEvents {
         return account == owner();
     }
 
+    /// @notice return the data of the voters
+    /// @dev As we can't return a mapping, we create an array and add voters one by one using our address list
+    function getAllVoterAddresses() public view returns (Voter[] memory) {
+        uint256 length = voterAddresses.length;
+        Voter[] memory voterList = new Voter[](length);
+
+        for (uint256 i = 0; i < length; i++) {
+            voterList[i] = voters[voterAddresses[i]];
+            console.log(voters[voterAddresses[i]].voterAddress);
+        }
+
+
+        return voterList;
+    }
 
 }
