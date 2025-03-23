@@ -1,3 +1,6 @@
+'use client'
+
+
 import React, {useEffect, useMemo, useState} from "react";
 import {
     ColumnDef,
@@ -8,13 +11,13 @@ import {
     getSortedRowModel
 } from "@tanstack/react-table";
 import {ArrowUpDown} from "lucide-react";
-import {toast} from "sonner";
 import {useGetProposals} from "@/app/hooks/useGetProposals";
 import {ProposalForm} from "@/app/components/ProposalForm";
 import {Button} from "@/app/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/app/components/ui/table";
 import {Input} from "@/app/components/ui/input";
 import {useBlockchain} from "@/app/context/BlockchainContext";
+import {toast} from "sonner";
 
 
 type Proposal = {
@@ -92,7 +95,6 @@ export const ProposalsDataTable = () => {
     const {data, isLoading} = useGetProposals()
 
     useEffect(() => {
-
         if (data) {
             const {proposals} = data as ProposalsResponse
 
