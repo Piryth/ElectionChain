@@ -5,7 +5,11 @@ import {Input} from "@/app/components/ui/input";
 import {Label} from "@/app/components/ui/label";
 import {Badge} from "@/app/components/ui/badge";
 import {useOpenVotes} from "@/app/hooks/useOpenVotes";
+import {useEndVotingSession} from "@/app/hooks/useOpenVotes";
+import {useTallyVotes} from "@/app/hooks/useOpenVotes";
+import {useCancelVotes} from "@/app/hooks/useOpenVotes";
 import {Button} from "@/app/components/ui/button";
+import { useState, useEffect } from "react";
 
 enum WorkflowStatus {
     RegisteringVoters,
@@ -19,14 +23,61 @@ enum WorkflowStatus {
 
 export default function About() {
 
-    const {mutate, isPending} = useOpenVotes()
+    const {mutate: openVotes, isPending: isOpening} = useOpenVotes();
+    const {mutate: closeVotes, isPending: isClosing} = useEndVotingSession();
+    const {mutate: tallyVotes, isPending: isTallying} = useTallyVotes();
+    const {mutate: cancelVotes, isPending: isCanceling} = useCancelVotes();
 
-    const {address, isAdmin, isRegistered, hasVoted,voteStatus} = useBlockchain();
+    const {address, isAdmin, isRegistered, hasVoted, voteStatus} = useBlockchain();
+    const [currentAction, setCurrentAction] = useState("open");
+
+    useEffect(() => {
+        if (voteStatus === WorkflowStatus.VotingSessionEnded) {
+            setCurrentAction("tally");
+        } else if (voteStatus === WorkflowStatus.VotesTallied) {
+            setCurrentAction("cancel");
+        }
+    }, [voteStatus]);
 
     const handleOpenVotes = () => {
-        mutate();
-        console.log("Proposal registration opened successfully")
-    }
+        console.log("Opening votes..."); // Vérifie si la fonction est appelée
+        openVotes(undefined, {
+            onSuccess: () => {
+                console.log("Proposal registration opened successfully");
+                setCurrentAction("close");
+            },
+            onError: (error) => {
+                console.error("Error opening votes:", error); // Ajoute un log pour l'erreur
+            }
+        });
+    };
+
+
+    const handleCloseVotes = () => {
+        closeVotes(undefined, {
+            onSuccess: () => {
+                setCurrentAction("tally");
+                console.log("Voting session closed successfully");
+            }
+        });
+    };
+
+    const handleTallyVotes = () => {
+        tallyVotes(undefined, {
+            onSuccess: () => {
+                setCurrentAction("cancel");
+                console.log("Votes tallied successfully");
+            }
+        });
+    };
+
+    const handleCancelVotes = () => {
+        cancelVotes(undefined, {
+            onSuccess: () => {
+                console.log("Voting session canceled successfully");
+            }
+        });
+    };
 
     return <div className="w-[90vw] mr-auto ml-auto mt-10 grid grid-cols-2 grid-rows-1 gap-4">
         <div className="flex flex-col w-[80%] gap-12">
@@ -53,13 +104,24 @@ export default function About() {
             <h1 className={"text-3xl font-bold"}>Actions</h1>
 
             {isAdmin ? (
-                <div>Hello admin
-                    <Button disabled={isPending} onClick={handleOpenVotes}>Open votes</Button>
-
+                <div>
+                    Hello admin
+                    <div className="flex gap-4 mt-4">
+                        {currentAction === "open" && (
+                            <Button disabled={isOpening} onClick={handleOpenVotes}>Open Votes</Button>
+                        )}
+                        {currentAction === "close" && (
+                            <Button disabled={isClosing} onClick={handleCloseVotes}>Close Votes</Button>
+                        )}
+                        {currentAction === "tally" && (
+                            <Button disabled={isTallying} onClick={handleTallyVotes}>Tally Votes</Button>
+                        )}
+                        {currentAction === "cancel" && (
+                            <Button disabled={isCanceling} onClick={handleCancelVotes}>Cancel Voting Session</Button>
+                        )}
+                    </div>
                 </div>
             ) : (<p>You have no right</p>)}
-
         </div>
-
     </div>
 }

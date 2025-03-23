@@ -28,6 +28,7 @@ contract Voting is Ownable, IVoting, VotingEvents {
     uint public voterCount;
 
     /// @notice List of proposals
+    uint public votes;
     Proposals private proposalsVar;
 
     /// @notice ID of the winning proposal
@@ -105,9 +106,9 @@ contract Voting is Ownable, IVoting, VotingEvents {
 
     /// @notice Starts the voting session
     function startVotingSession() external onlyOwner {
-        require(status == WorkflowStatus.ProposalsRegistrationEnded, "Invalid status transition");
+        require(status == WorkflowStatus.ProposalsRegistrationStarted, "Invalid status transition");
         status = WorkflowStatus.VotingSessionStarted;
-        emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationEnded, status);
+        emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationStarted, status);
     }
 
     /// @notice Votes for a proposal
@@ -120,6 +121,7 @@ contract Voting is Ownable, IVoting, VotingEvents {
         voters[msg.sender].hasVoted = true;
         voters[msg.sender].votedProposalId = int(_proposalId);
         proposalsVar.proposals[_proposalId].voteCount++;
+        votes++;
         emit Voted(msg.sender, _proposalId);
     }
 

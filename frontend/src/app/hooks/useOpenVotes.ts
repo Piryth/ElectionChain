@@ -1,33 +1,97 @@
-import {useMutation} from "@tanstack/react-query";
-import {useAccount, useConfig, useWalletClient} from "wagmi";
-import {writeContract} from "@wagmi/core";
-import {votingAbi} from "@/app/contracts/Voting";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useConfig } from "wagmi";
+import { votingAbi } from "@/app/contracts/Voting";
+import { readContract, writeContract } from "@wagmi/core";
 
+const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
 
-export const useOpenVotes = () => {
-    const { address } = useAccount(); // Get connected user
-    const config = useConfig(); // Wagmi config
-    const walletClient = useWalletClient();
-
-
+export const useStartProposalsRegistration = () => {
+    const config = useConfig();
     return useMutation({
-        mutationKey: ["startProposalsRegistration", address], // Query key for caching
         mutationFn: async () => {
-            if (!address) throw new Error("Connect your wallet first");
-
-            // Get the wallet client (to send transaction)
-            if (!walletClient) throw new Error("No wallet client found");
-
-            // Send the transaction to increment counter
-            const txHash = await writeContract(config, {
-                address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+            await writeContract(config, {
+                address: contractAddress,
                 abi: votingAbi,
                 functionName: "startProposalsRegistration",
-                args: [], // No arguments for this function
             });
+        }
+    });
+};
 
-            console.log("Transaction Hash:", txHash);
-            return txHash;
-        },
+export const useEndProposalsRegistration = () => {
+    const config = useConfig();
+    return useMutation({
+        mutationFn: async () => {
+            await writeContract(config, {
+                address: contractAddress,
+                abi: votingAbi,
+                functionName: "endProposalsRegistration",
+            });
+        }
+    });
+};
+
+export const useEndVotingSession = () => {
+    const config = useConfig();
+    return useMutation({
+        mutationFn: async () => {
+            await writeContract(config, {
+                address: contractAddress,
+                abi: votingAbi,
+                functionName: "endVotingSession",
+            });
+        }
+    });
+};
+
+export const useTallyVotes = () => {
+    const config = useConfig();
+    return useMutation({
+        mutationFn: async () => {
+            await writeContract(config, {
+                address: contractAddress,
+                abi: votingAbi,
+                functionName: "tallyVotes",
+            });
+        }
+    });
+};
+
+export const useCancelVotes = () => {
+    const config = useConfig();
+    return useMutation({
+        mutationFn: async () => {
+            await writeContract(config, {
+                address: contractAddress,
+                abi: votingAbi,
+                functionName: "cancelVotes",
+            });
+        }
+    });
+};
+
+export const useKillElected = () => {
+    const config = useConfig();
+    return useMutation({
+        mutationFn: async () => {
+            await writeContract(config, {
+                address: contractAddress,
+                abi: votingAbi,
+                functionName: "killElected",
+            });
+        }
+    });
+};
+
+export const useOpenVotes = () => {
+    const config = useConfig();
+    return useMutation({
+        mutationFn: async () => {
+            await writeContract(config, {
+                address: contractAddress,
+                abi: votingAbi,
+                functionName: "openVotes",
+            });
+        }
     });
 };
