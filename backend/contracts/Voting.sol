@@ -7,7 +7,7 @@ import {IVoting} from "./IVoting.sol";
 import {VotingEvents} from "./VotingEvents.sol";
 
 /// @title A sample voting smart contract
-/// @author Mikael VIVIER, Louison Prodhom, Arnaud Endignous
+/// @author Mikael VIVIER, Louison Prodhomme, Arnaud Endignous
 /// @notice You can use this contract for only the most basic simulation
 /// @dev All function calls are currently implemented without side effects
 /// @custom:experimental This is an experimental contract.
@@ -15,16 +15,27 @@ contract Voting is Ownable, IVoting, VotingEvents {
 
     // =================================== ATTRIBUTES ======================================
 
+    /// @notice Current workflow status
     WorkflowStatus public status;
+
+    /// @notice Mapping of voters by address
     mapping(address => Voter) public voters;
+
+    /// @notice List of voter addresses
     address[] public voterAddresses;
+
+    /// @notice Total number of voters
     uint public voterCount;
+
+    /// @notice List of proposals
     Proposals private proposalsVar;
+
+    /// @notice ID of the winning proposal
     uint public winningProposalId;
 
     // =================================== CONSTRUCTOR ======================================
 
-
+    /// @notice Contract constructor
     constructor() Ownable(msg.sender){
         console.log("Registering address %s to vote", msg.sender);
 
@@ -33,15 +44,16 @@ contract Voting is Ownable, IVoting, VotingEvents {
 
         status = WorkflowStatus.RegisteringVoters;
 
-        // Default proposal for testing purpose
+        // Default proposal for testing
         proposalsVar.proposals.push(Proposal("First proposal", 0));
 
-        // We also add the owner address to the addresses list
+        // Add owner's address to the list of addresses
         voterAddresses.push(msg.sender);
     }
 
     // =================================== MODIFIERS ======================================
 
+    /// @notice Checks if the caller is a registered voter
     modifier onlyRegisteredVoter() {
         require(voters[msg.sender].isRegistered, "Not a registered voter");
         _;
@@ -49,13 +61,15 @@ contract Voting is Ownable, IVoting, VotingEvents {
 
     // =================================== METHODS ======================================
 
+    /// @notice Registers a voter
+    /// @param _voter Address of the voter to register
     function registerVoter(address _voter) external onlyOwner {
         require(status == WorkflowStatus.RegisteringVoters, "Not allowed at this stage");
         require(!voters[_voter].isRegistered, "Already registered");
         voters[_voter].isRegistered = true;
         voters[_voter].voterAddress = _voter;
 
-        // We set at -1 by default
+        // Default value to -1
         voters[_voter].votedProposalId = - 1;
         voterCount++;
 
@@ -64,12 +78,15 @@ contract Voting is Ownable, IVoting, VotingEvents {
         emit VoterRegistered(_voter);
     }
 
+    /// @notice Starts proposal registration
     function startProposalsRegistration() external onlyOwner {
         require(status == WorkflowStatus.RegisteringVoters, "Invalid status transition");
         status = WorkflowStatus.ProposalsRegistrationStarted;
         emit WorkflowStatusChange(WorkflowStatus.RegisteringVoters, status);
     }
 
+    /// @notice Registers a proposal
+    /// @param _description Description of the proposal
     function registerProposal(string memory _description) external onlyRegisteredVoter {
         require(status == WorkflowStatus.ProposalsRegistrationStarted, "Proposals not open");
 
@@ -79,18 +96,22 @@ contract Voting is Ownable, IVoting, VotingEvents {
         emit ProposalRegistered(proposalsVar.proposals.length - 1);
     }
 
+    /// @notice Ends proposal registration
     function endProposalsRegistration() external onlyOwner {
         require(status == WorkflowStatus.ProposalsRegistrationStarted, "Invalid status transition");
         status = WorkflowStatus.ProposalsRegistrationEnded;
         emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationStarted, status);
     }
 
+    /// @notice Starts the voting session
     function startVotingSession() external onlyOwner {
         require(status == WorkflowStatus.ProposalsRegistrationEnded, "Invalid status transition");
         status = WorkflowStatus.VotingSessionStarted;
         emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationEnded, status);
     }
 
+    /// @notice Votes for a proposal
+    /// @param _proposalId ID of the proposal to vote for
     function vote(uint _proposalId) external onlyRegisteredVoter {
         require(status == WorkflowStatus.VotingSessionStarted, "Voting not open");
         require(!voters[msg.sender].hasVoted, "Already voted");
@@ -102,12 +123,14 @@ contract Voting is Ownable, IVoting, VotingEvents {
         emit Voted(msg.sender, _proposalId);
     }
 
+    /// @notice Ends the voting session
     function endVotingSession() external onlyOwner {
         require(status == WorkflowStatus.VotingSessionStarted, "Invalid status transition");
         status = WorkflowStatus.VotingSessionEnded;
         emit WorkflowStatusChange(WorkflowStatus.VotingSessionStarted, status);
     }
 
+    /// @notice Tallies the votes
     function tallyVotes() external onlyOwner {
         require(status == WorkflowStatus.VotingSessionEnded, "Invalid status transition");
 
@@ -123,12 +146,15 @@ contract Voting is Ownable, IVoting, VotingEvents {
         emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, status);
     }
 
+    /// @notice Retrieves the winning proposal
+    /// @return description Description of the winning proposal
+    /// @return voteCount Number of votes for the winning proposal
     function getWinner() external view returns (string memory description, uint voteCount) {
         require(status == WorkflowStatus.VotesTallied, "Votes not tallied yet");
         return (proposalsVar.proposals[winningProposalId].description, proposalsVar.proposals[winningProposalId].voteCount);
     }
 
-    //fonctionnalité 1
+    /// @notice Cancels the votes if less than 34% of voters have voted
     function cancelVotes() external onlyOwner {
         require(status == WorkflowStatus.VotingSessionEnded, "Invalid status transition");
         uint votes = 0;
@@ -138,17 +164,17 @@ contract Voting is Ownable, IVoting, VotingEvents {
         }
     }
 
-    //fonctionnalité 2
+    /// @notice Removes the winning proposal and designates the second most voted proposal as the winner
     function killElected() external onlyOwner {
         require(status == WorkflowStatus.VotesTallied, "Votes not tallied yet");
         require(proposalsVar.proposals.length > 1, "Not enough proposals to remove the winner");
 
-        // Trouver le deuxième plus grand vote
+        // Find the second highest vote
         uint secondMaxVotes = 0;
         uint secondWinnerId = 0;
 
         for (uint i = 0; i < proposalsVar.proposals.length; i++) {
-            if (i == winningProposalId) continue; // Ignorer le gagnant actuel
+            if (i == winningProposalId) continue; // Skip the current winner
 
             if (proposalsVar.proposals[i].voteCount > secondMaxVotes) {
                 secondMaxVotes = proposalsVar.proposals[i].voteCount;
@@ -159,23 +185,28 @@ contract Voting is Ownable, IVoting, VotingEvents {
     }
 
     /// @notice Returns the total number of proposals in the contract
-    /// @dev This function returns the length of proposals. You can use it to fetch full array
-    /// @return The number of proposals (length of the `proposals` array).
+    /// @return The number of proposals (length of the `proposals` array)
     function getProposals() public view onlyRegisteredVoter returns (Proposals memory) {
         return proposalsVar;
     }
 
-    /// @notice Reads a voter from its address
+    /// @notice Reads voter information from their address
+    /// @param _address Address of the voter
+    /// @return Voter information
     function getVoter(address _address) public view onlyRegisteredVoter returns (Voter memory) {
         return voters[_address];
     }
 
+    /// @notice Checks if an account is the owner
+    /// @param account Address of the account to check
+    /// @return True if the account is the owner, otherwise false
     function isOwner(address account) public view onlyOwner returns (bool) {
         return account == owner();
     }
 
-    /// @notice return the data of the voters
-    /// @dev As we can't return a mapping, we create an array and add voters one by one using our address list
+    /// @notice Returns voter data
+    /// @dev Since we cannot return a mapping, we create an array and add voters one by one using our list of addresses
+    /// @return List of voters
     function getAllVoterAddresses() public view returns (Voter[] memory) {
         uint256 length = voterAddresses.length;
         Voter[] memory voterList = new Voter[](length);
@@ -184,7 +215,6 @@ contract Voting is Ownable, IVoting, VotingEvents {
             voterList[i] = voters[voterAddresses[i]];
             console.log(voters[voterAddresses[i]].voterAddress);
         }
-
 
         return voterList;
     }

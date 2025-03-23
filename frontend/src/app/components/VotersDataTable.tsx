@@ -1,6 +1,4 @@
-'use client'
-
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     ColumnDef,
     flexRender,
@@ -9,58 +7,35 @@ import {
     getPaginationRowModel,
     getSortedRowModel
 } from "@tanstack/react-table";
-import {ArrowUpDown} from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
-import {Button} from "@/app/components/ui/button";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/app/components/ui/table";
-import {Input} from "@/app/components/ui/input";
-import {useGetVoters} from "@/app/hooks/useGetVoters";
-
+import { Button } from "@/app/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table";
+import { Input } from "@/app/components/ui/input";
+import { useGetVoters } from "@/app/hooks/useGetVoters";
 
 type VoterData = {
     isRegistered: boolean;
     hasVoted: boolean;
-    votedProposalId: number;
+    votedProposalId: bigint;
     voterAddress: string;
 }
 
-type VoterResponseData = {
-    voters: VoterData[];
-}
-
 export const VotersDataTable = () => {
-
     const [filter, setFilter] = useState("");
     const [voterList, setVoterList] = useState<VoterData[]>([]);
 
     const columns: ColumnDef<VoterData>[] = [
         {
-            accessorKey: "name",
-            header: ({column}) => (
+            accessorKey: "voterAddress",
+            header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Address <ArrowUpDown className="ml-2 h-4 w-4"/>
+                    Address <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
         },
-        {
-            accessorKey: "hasVoted",
-            header: ({column}) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Has Voted <ArrowUpDown className="ml-2 h-4 w-4"/>
-                </Button>
-            ),
-            cell: ({row}) => <span className="font-medium">{row.getValue("hasVoted")}</span>,
-        },
-        {
-            accessorKey: "numberOfVotes",
-            header: ({column}) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Voted for<ArrowUpDown className="ml-2 h-4 w-4"/>
-                </Button>
-            ),
-            cell: ({row}) => <span className="font-medium">{row.getValue("numberOfVotes")}</span>,
-        },
-
+        { accessorKey: "hasVoted", header: "Voted" },
+        { accessorKey: "votedProposalId", header: "Voted Proposal ID" },
     ];
 
     const filteredData = useMemo(() => {
@@ -69,7 +44,6 @@ export const VotersDataTable = () => {
         );
     }, [filter, voterList]);
 
-    // Table instance
     const table = useReactTable({
         data: filteredData,
         columns,
@@ -78,34 +52,28 @@ export const VotersDataTable = () => {
         getSortedRowModel: getSortedRowModel(),
     });
 
-    const {data, isLoading} = useGetVoters();
+    const { data, isLoading } = useGetVoters();
 
     useEffect(() => {
-
         if (data) {
-            const {voters} = data as VoterResponseData
-
-            setVoterList([...voters]);
+            setVoterList(data);
+            console.log(data);
         }
-    }, [data, isLoading])
+    }, [data, isLoading]);
 
     if (isLoading) return <div>Loading...</div>;
-
-
 
     return (
         <div className="p-4 space-y-4">
             <div className="flex justify-between gap-4">
-                {/* Search Bar */}
                 <Input
-                    placeholder="Search proposals..."
+                    placeholder="Search voters..."
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
                     className="w-1/3"
                 />
             </div>
 
-            {/* Table */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -133,7 +101,7 @@ export const VotersDataTable = () => {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="text-center">
-                                    No proposals found.
+                                    No voters found.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -141,7 +109,6 @@ export const VotersDataTable = () => {
                 </Table>
             </div>
 
-            {/* Pagination Controls */}
             <div className="flex justify-end space-x-2">
                 <Button
                     variant="outline"
@@ -160,6 +127,4 @@ export const VotersDataTable = () => {
             </div>
         </div>
     );
-
-
-}
+};
