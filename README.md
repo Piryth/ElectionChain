@@ -70,6 +70,12 @@ npx hardhat ignition deploy ./ignition/modules/deploy.ts --network localhost
 
 In order for our front to communicate with the smart contract, we need to create a .env file, and paste the address of the smart contract within the environment variable NEXT_PUBLIC_CONTRACT_ADDRESS.
 
+```
+pnpm i
+pnpm run dev
+```
+Everything should compile 🔥
+
 ### Using Metamask to connect
 In order to connect a wallet to the front, you need to :
 
@@ -82,11 +88,7 @@ In order to connect a wallet to the front, you need to :
 You can take some of the private keys generated previously and import it to your Metamask account.
 If you import the same private key that you used to deploy the contract, you will be the admin.
 
-```
-pnpm i
-pnpm run dev
-```
-Everything should compile 🔥
+
 
 ## Tech stack 🤖
 + For smart-contracts : Solidity, HardHat, OpenZepplin
