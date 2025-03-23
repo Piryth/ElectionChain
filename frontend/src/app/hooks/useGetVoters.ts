@@ -6,12 +6,8 @@ import {readContract} from "@wagmi/core";
 type VoterData = {
     isRegistered: boolean;
     hasVoted: boolean;
-    votedProposalId: number;
+    votedProposalId: bigint;
     voterAddress: string;
-}
-
-type VoterResponseData = {
-    voters: VoterData[];
 }
 
 export const useGetVoters = () => {
@@ -19,7 +15,7 @@ export const useGetVoters = () => {
     const config = useConfig(); // Wagmi config
     const walletClient = useWalletClient();
 
-    return useQuery<VoterResponseData>({
+    return useQuery<VoterData[]>({
         queryKey: ["getVoters", address], // Query key for caching
         queryFn: async () => {
             if (!address) throw new Error("Connect your wallet first");
@@ -27,16 +23,16 @@ export const useGetVoters = () => {
             // Get the wallet client (to send transaction)
             if (!walletClient) throw new Error("No wallet client found");
 
-            // Send the transaction to increment counter
-            const txHash = await readContract(config, {
+            // Send the transaction to get voter addresses
+            const voters = await readContract(config, {
                 address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
                 abi: votingAbi,
                 functionName: "getAllVoterAddresses",
                 args: [], // No arguments for this function
-            }) as VoterResponseData;
+            }) as VoterData[];
 
-            console.log("Transaction Hash:", txHash);
-            return txHash;
+            console.log("Transaction Hash:", voters);
+            return voters;
         },
     });
 };
