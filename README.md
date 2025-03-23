@@ -43,7 +43,7 @@ At the end of the voting process, the proposal with the most votes will win !
 │   ├── hardhat.config.ts # Hardhat configuration
 │   └── contracts/        # Smart contracts code here
 |   └── ignition/         # Deployment scripts
-|    └── test/             # Smart contracts unit tests
+|   └── test/             # Smart contracts unit tests
 
 ```
 
@@ -69,6 +69,18 @@ npx hardhat ignition deploy ./ignition/modules/deploy.ts --network localhost
 *Prerequisite : deploy smart contract first*
 
 In order for our front to communicate with the smart contract, we need to create a .env file, and paste the address of the smart contract within the environment variable NEXT_PUBLIC_CONTRACT_ADDRESS.
+
+### Using Metamask to connect
+In order to connect a wallet to the front, you need to :
+
+ **Add the HardHat node as a network :**
+ RPC URL : http://localhost:8545
+ Chain Id : 31337
+ Currency : ETH
+
+**Import the private key :**
+You can take some of the private keys generated previously and import it to your Metamask account.
+If you import the same private key that you used to deploy the contract, you will be the admin.
 
 ```
 pnpm i
